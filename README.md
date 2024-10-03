@@ -1,6 +1,6 @@
 # workshop2_ETL
 
-```markdown
+
 # Grammy & Spotify Data ETL Pipeline
 
 This project is an ETL (Extract, Transform, Load) pipeline that processes data related to Grammy Awards and Spotify tracks. The project is developed using Python and `pandas` for data manipulation, with data being stored in a PostgreSQL database. The project also includes DAGs managed by Apache Airflow to automate the ETL process.
