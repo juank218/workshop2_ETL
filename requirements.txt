@@ -21,6 +21,7 @@ attrs==24.2.0
 babel==2.16.0
 blinker==1.8.2
 cachelib==0.9.0
+cachetools==5.5.0
 certifi==2024.8.30
 cffi==1.17.0
 charset-normalizer==3.3.2
@@ -58,6 +59,10 @@ Flask-WTF==1.2.1
 fonttools==4.54.1
 frozenlist==1.4.1
 fsspec==2024.6.1
+google-api-core==2.20.0
+google-api-python-client==2.147.0
+google-auth==2.35.0
+google-auth-httplib2==0.2.0
 google-re2==1.1.20240702
 googleapis-common-protos==1.65.0
 greenlet==3.0.3
@@ -65,6 +70,7 @@ grpcio==1.66.1
 gunicorn==23.0.0
 h11==0.14.0
 httpcore==1.0.5
+httplib2==0.22.0
 httpx==0.27.0
 idna==3.8
 importlib-metadata==6.11.0
@@ -100,7 +106,8 @@ more-itertools==10.4.0
 multidict==6.0.5
 nbformat==5.10.4
 nest-asyncio==1.6.0
-numpy==2.1.1
+numpy==1.26.4
+oauth2client==4.1.3
 opentelemetry-api==1.27.0
 opentelemetry-exporter-otlp==1.27.0
 opentelemetry-exporter-otlp-proto-common==1.27.0
@@ -111,7 +118,7 @@ opentelemetry-sdk==1.27.0
 opentelemetry-semantic-conventions==0.48b0
 ordered-set==4.1.0
 packaging==24.1
-pandas==2.2.3
+pandas==2.1.4
 parso==0.8.4
 pathspec==0.12.1
 pendulum==3.0.0
@@ -122,12 +129,16 @@ plotly==5.24.1
 pluggy==1.5.0
 prison==0.2.1
 prompt_toolkit==3.0.48
+proto-plus==1.24.0
 protobuf==4.25.4
 psutil==6.0.0
 psycopg2-binary==2.9.9
 ptyprocess==0.7.0
 pure_eval==0.2.3
+pyasn1==0.6.1
+pyasn1_modules==0.4.1
 pycparser==2.22
+PyDrive==1.3.1
 Pygments==2.18.0
 PyJWT==2.9.0
 pyparsing==3.1.4
@@ -146,12 +157,13 @@ rfc3339-validator==0.1.4
 rich==13.8.0
 rich-argparse==1.5.2
 rpds-py==0.20.0
+rsa==4.9
 seaborn==0.13.2
 setproctitle==1.3.3
 setuptools==74.0.0
 six==1.16.0
 sniffio==1.3.1
-SQLAlchemy==1.4.53
+SQLAlchemy==1.4.54
 SQLAlchemy-JSONField==1.0.2
 SQLAlchemy-Utils==0.41.2
 sqlparse==0.5.1
@@ -168,6 +180,7 @@ tzdata==2024.1
 uc-micro-py==1.0.3
 unicodecsv==0.14.1
 universal_pathlib==0.2.3
+uritemplate==4.1.1
 urllib3==2.2.2
 wcwidth==0.2.13
 Werkzeug==2.2.3

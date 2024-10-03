@@ -2,15 +2,15 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime
-from grammy_etl import fetch_grammy_data, validate_grammy_data
-from spotify_etl import fetch_spotify_data, validate_spotify_data
-from merge_process import combine_csv_files, store_merged_data_to_db, upload_to_google_drive
+from grammyETL import fetch_grammy_data, validate_grammy_data
+from spotifyETL import fetch_spotify_data, validate_spotify_data
+from merge import combine_csv_files, store_merged_data_to_db, upload_to_google_drive
 
 # Configuración por defecto del DAG
 default_args = {
     'owner': 'data_engineer',
     'depends_on_past': False,
-    'start_date': datetime(2024, 9, 23),  
+    'start_date': datetime(2023, 9, 23),  
     'email': ['data_team@company.com'],
     'email_on_failure': True,
     'email_on_retry': False,
