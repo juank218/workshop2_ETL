@@ -7,117 +7,114 @@ from sqlalchemy import create_engine, inspect
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
-
 logging.basicConfig(level=logging.INFO)
 
-
-def merge_all_csv(**kwargs):
+def combine_csv_files(**context):
     try:
-        ti = kwargs["ti"]
+        # Cargar los datos desde XCom
+        ti = context["ti"]
         
-        json_data = json.loads(ti.xcom_pull(task_ids="transform_DB"))
-        df1 = pd.json_normalize(data=json_data)
+        json_data_db = json.loads(ti.xcom_pull(task_ids="transform_db_task"))
+        df_database = pd.json_normalize(data=json_data_db)
 
-        json_data = json.loads(ti.xcom_pull(task_ids="transform_csv"))
-        df2 = pd.json_normalize(data=json_data)
+        json_data_csv = json.loads(ti.xcom_pull(task_ids="transform_csv_task"))
+        df_csv = pd.json_normalize(data=json_data_csv)
         
-        logging.info("CSV files loaded successfully.")
+        logging.info("CSV data loaded successfully.")
 
-        df_merge = pd.merge(df1, df2, left_on='nominee', right_on='track_name', how='inner')
-        logging.info(f"DataFrames merged successfully. Shape: {df_merge.shape}")
+        # Combinar los DataFrames
+        combined_df = pd.merge(df_database, df_csv, left_on='nominee', right_on='track_name', how='inner')
+        logging.info(f"DataFrames merged successfully. Final shape: {combined_df.shape}")
 
-        df_merge.drop(columns=['artists', 'liveness', 'time_signature'], inplace=True)
-        logging.info("Unnecessary columns dropped successfully.")
+        # Eliminar columnas innecesarias
+        combined_df.drop(columns=['artist_name', 'live_performance', 'signature_time'], inplace=True)
+        logging.info("Columns removed successfully.")
 
-        count_duplicated = df_merge['track_id'].duplicated().sum()
-        logging.info(f"Number of duplicates in the 'track_id' column before dropping: {count_duplicated}")
+        # Verificar duplicados
+        initial_duplicates = combined_df['track_id'].duplicated().sum()
+        logging.info(f"Initial duplicates in 'track_id': {initial_duplicates}")
 
-        df_merge = df_merge.drop_duplicates(subset=['track_id'], keep='first')
+        combined_df = combined_df.drop_duplicates(subset=['track_id'], keep='first')
 
-        count_duplicated = df_merge['track_id'].duplicated().sum()
-        logging.info(f"Number of duplicates in the 'track_id' column after dropping: {count_duplicated}")
+        final_duplicates = combined_df['track_id'].duplicated().sum()
+        logging.info(f"Remaining duplicates in 'track_id': {final_duplicates}")
 
-        logging.info("Dataset ready and cleaned.")
+        logging.info("Data cleaned and ready for next step.")
 
-        logging.info(f"Final DataFrame: \n{df_merge.head()}")
-        return df_merge.to_json(orient='records')
+        return combined_df.to_json(orient='records')
 
-    except Exception as e:
-        logging.error(f"Error during dataframe merge: {e}")
+    except Exception as error:
+        logging.error(f"Error during CSV merge process: {str(error)}")
+
+
+def store_merged_data_to_db(**context):
+    try:
+        ti = context["ti"]
+        merged_data = ti.xcom_pull(task_ids='combine_csv')
         
+        json_records = json.loads(merged_data)
+        df_merged = pd.json_normalize(data=json_records)
         
-def save_merge_DB(**kwargs):
-    try: 
-        ti = kwargs["ti"]
-        data = ti.xcom_pull(task_ids='merge')
-        
-        json_data = json.loads(data)
-        df = pd.json_normalize(data=json_data)
-        
+        # Cargar variables de entorno
         load_dotenv()
 
-        localhost = os.getenv('LOCALHOST')
-        port = os.getenv('PORT')
-        nameDB = os.getenv('DB_NAME')
-        userDB = os.getenv('DB_USER')
-        passDB = os.getenv('DB_PASS')
+        db_host = os.getenv('DB_HOST')
+        db_port = os.getenv('DB_PORT')
+        db_name = os.getenv('DATABASE_NAME')
+        db_user = os.getenv('DB_USER')
+        db_password = os.getenv('DB_PASSWORD')
         
-        engine = create_engine(f'postgresql+psycopg2://{userDB}:{passDB}@{localhost}:{port}/{nameDB}')
-        inspector = inspect(engine)
+        # Conectar a la base de datos
+        db_engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
+        db_inspector = inspect(db_engine)
         
-        connection = engine.connect()
-        logging.info("Successfully connected to the database.")
+        connection = db_engine.connect()
+        logging.info("Database connection established.")
+
+        # Guardar el DataFrame en la base de datos
+        df_merged.to_sql('combined_data', db_engine, if_exists='replace', index=False)
         
-        
-        df.to_sql('merge_data', engine, if_exists='replace', index=False)
-        
-        logging.info("Data saved successfully.")
-        
+        logging.info("Merged data saved to the database.")
+
         connection.close()
-        
-        
-    except Exception as e:
-        logging.error(f"Error saving the merge: {str(e)}")
-        
 
-def authenticate():
+    except Exception as error:
+        logging.error(f"Error saving merged data to the database: {str(error)}")
+
+
+def authenticate_google_drive():
     gauth = GoogleAuth()
-
-    gauth.LoadClientConfigFile("./client_secret.json")
-    
+    gauth.LoadClientConfigFile("./client_secrets.json")
     gauth.LocalWebserverAuth()
-    
-    return gauth      
-      
-  
-def save_drive(file_name='df_merge.csv', folder_id=None,**kwargs):
-    try:
-        ti = kwargs["ti"]
-        data = ti.xcom_pull(task_ids='merge')
-        
-        json_data = json.loads(data)
-        df = pd.json_normalize(data=json_data)
-        
-        logging.info("DataFrame saved as CSV successfully.")
+    return gauth
 
-        # Guardar el DataFrame como CSV temporalmente
-        temp_file_path = f"./{file_name}"
-        df.to_csv(temp_file_path, index=False)
-        logging.info("DataFrame saved as CSV successfully.")
+
+def upload_to_google_drive(file_name='combined_data.csv', folder_id=None, **context):
+    try:
+        ti = context["ti"]
+        merged_data = ti.xcom_pull(task_ids='combine_csv')
+        
+        json_records = json.loads(merged_data)
+        df = pd.json_normalize(data=json_records)
+        
+        # Guardar el DataFrame como un archivo CSV
+        temp_csv_path = f"./{file_name}"
+        df.to_csv(temp_csv_path, index=False)
+        logging.info("CSV file saved successfully.")
 
         # Autenticarse en Google Drive
-        gauth = authenticate()
+        gauth = authenticate_google_drive()
         drive = GoogleDrive(gauth)
 
-        # Crear el archivo en Google Drive
-        file = drive.CreateFile({'title': file_name, 'parents': [{'id': folder_id}] if folder_id else []})
-        file.SetContentFile(temp_file_path)
-        file.Upload()
+        # Crear y subir el archivo a Google Drive
+        drive_file = drive.CreateFile({'title': file_name, 'parents': [{'id': folder_id}] if folder_id else []})
+        drive_file.SetContentFile(temp_csv_path)
+        drive_file.Upload()
 
-        logging.info(f"Archivo '{file_name}' subido correctamente a Google Drive.")
+        logging.info(f"File '{file_name}' uploaded successfully to Google Drive.")
 
-        # Eliminar el archivo CSV local después de la subida
-        os.remove(temp_file_path)
+        # Eliminar el archivo CSV local
+        os.remove(temp_csv_path)
 
-    except Exception as e:
-        logging.error(f"Error saving the merge to Google Drive: {str(e)}")
+    except Exception as error:
+        logging.error(f"Error uploading file to Google Drive: {str(error)}")

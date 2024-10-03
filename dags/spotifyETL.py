@@ -5,31 +5,35 @@ import os
 
 logging.basicConfig(level=logging.INFO)
 
-def load_spotify():
+def fetch_spotify_data():
     try:
-        data = pd.read_csv("./cleanData/spotify-clean.csv")
-        logging.info("Successfully loaded the data.")
-        return data.to_json(orient="records")
-    except Exception as e:
-        logging.error(f"Error loading spotify : {str(e)}")
+        spotify_data = pd.read_csv("./data/spotify_dataset_cleaned.csv")
+        logging.info("Spotify data loaded successfully.")
+        return spotify_data.to_json(orient="records")
+    except Exception as error:
+        logging.error(f"Error occurred while loading Spotify data: {str(error)}")
         
 
-def spotify_check(**kwargs):
+def validate_spotify_data(**context):
     try:
-        ti = kwargs["ti"]
-        data = ti.xcom_pull(task_ids='extract_csv')
-        json_data = json.loads(data)
-        data = pd.json_normalize(data=json_data)
-        logging.info("Data successful load")
-        is_null = pd.isnull(data)
-        logging.info(f"The null in dataset are: {is_null}")
-        logging.info("Now we will drop the column Unnamed: 0")
-        data = data.drop(columns=['Unnamed: 0'])
-        logging.info(data.info())
-        duplicated = data[data.duplicated()]
-        logging.info(f"The duplicated data are: {duplicated}")
-        logging.info("The dataset is ready to merge")
-        return data.to_json(orient='records')
-    except Exception as e:
-        logging.info(f"Spotify check has found the next error: {str(e)}")
+        ti = context["ti"]
+        raw_data = ti.xcom_pull(task_ids='fetch_spotify')
+        json_records = json.loads(raw_data)
+        dataframe = pd.json_normalize(data=json_records)
 
+        logging.info("Spotify data successfully pulled and normalized.")
+
+        null_values = dataframe.isnull().sum()
+        logging.info(f"Null values in the dataset: {null_values}")
+
+        logging.info("Dropping the column 'Unnamed: 0'")
+        dataframe = dataframe.drop(columns=['Unnamed: 0'])
+        logging.info(dataframe.info())
+
+        duplicate_rows = dataframe[dataframe.duplicated()]
+        logging.info(f"Duplicate entries in the dataset: {duplicate_rows}")
+
+        logging.info("Data is ready for the merge process.")
+        return dataframe.to_json(orient='records')
+    except Exception as error:
+        logging.error(f"Error in Spotify data validation: {str(error)}")
