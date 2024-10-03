@@ -1,7 +1,5 @@
 # workshop2_ETL
 
-# Untitled
-
 ```markdown
 # Grammy & Spotify Data ETL Pipeline
 
@@ -118,24 +116,3 @@ localhost:8080
 
 2. Access the Airflow dashboard by visiting `http://localhost:8080` in your browser.
 3. Trigger the ETL DAGs (`grammy.py`, `spotify.py`) from the Airflow UI.
-
-### 2. Migrate the merged dataset to PostgreSQL
-
-You can run the migration script to migrate the cleaned and merged dataset to PostgreSQL.
-
-```bash
-bash
-Copiar código
-python merge/Datasets_Merge.py
-
-```
-
-## Data Sources
-
-- **Spotify Dataset**: Contains track-level data including genre and other metadata.
-- **Grammy Dataset**: Contains information about Grammy winners and categories.
-
-## Future Work
-
-- Add more data sources to enrich the analysis.
-- Implement more complex transformations and validations.
