@@ -12,7 +12,7 @@ default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
     'start_date': datetime(2024, 9, 23),  
-    'email': ['santiago.gomez_cas@uao.edu.co'],
+    'email': ['juan_carlos.quintero@uao.edu.co'],
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
