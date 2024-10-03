@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 
 def fetch_spotify_data():
     try:
-        spotify_data = pd.read_csv("./data/spotify_dataset_cleaned.csv")
+        spotify_data = pd.read_csv("./raw_data/spotify_dataset.csv")
         logging.info("Spotify data loaded successfully.")
         return spotify_data.to_json(orient="records")
     except Exception as error:

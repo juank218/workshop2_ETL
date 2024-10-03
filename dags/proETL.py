@@ -11,7 +11,7 @@ default_args = {
     'owner': 'data_engineer',
     'depends_on_past': False,
     'start_date': datetime(2023, 9, 23),  
-    'email': ['data_team@company.com'],
+    'email': ['juan_carlos.quintero@uao.edu.co'],
     'email_on_failure': True,
     'email_on_retry': False,
     'retries': 2,

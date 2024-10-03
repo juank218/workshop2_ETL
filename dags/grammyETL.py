@@ -14,9 +14,9 @@ def fetch_grammy_data():
 
         db_host = os.getenv('DB_HOST')
         db_port = os.getenv('DB_PORT')
-        database_name = os.getenv('DATABASE')
-        db_user = os.getenv('USER_DB')
-        db_password = os.getenv('PASSWORD_DB')
+        database_name = os.getenv('DB_NAME')
+        db_user = os.getenv('DB_USERNAME')
+        db_password = os.getenv('DB_PASSWORD')
 
         # Establecer conexión a la base de datos
         db_engine = create_engine(f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{database_name}')
