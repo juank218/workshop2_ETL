@@ -23,11 +23,8 @@ This project is an ETL (Extract, Transform, Load) pipeline that processes data r
 ### 1. Clone the repository
 
 ```bash
-bash
-Copiar código
 git clone https://github.com/juank218/workshop2_ETL.git
 cd workshop2_ETL
-
 ```
 
 ### 2. Set up a virtual environment using `venv`
@@ -35,31 +32,19 @@ cd workshop2_ETL
 If you don't have `venv` installed, follow the instructions [here](https://docs.python.org/3/library/venv.html).
 
 1. Create the virtual environment:
-    
     ```bash
-    bash
-    Copiar código
     python3 -m venv venv
-    
     ```
     
 2. Activate the virtual environment:
     - On macOS/Linux:
-        
         ```bash
-        bash
-        Copiar código
         source venv/bin/activate
-        
         ```
         
     - On Windows:
-        
         ```bash
-        bash
-        Copiar código
         venv\Scripts\activate
-        
         ```
         
 
@@ -68,10 +53,7 @@ If you don't have `venv` installed, follow the instructions [here](https://docs.
 Make sure you have the virtual environment activated before running this command:
 
 ```bash
-bash
-Copiar código
 pip install -r requirements.txt
-
 ```
 
 
@@ -79,13 +61,11 @@ pip install -r requirements.txt
 1. Update your `.env` file with your PostgreSQL connection details:
 
 ```makefile
-makefile
-Copiar código
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=workshop2
+DB_HOST=""
+DB_PORT=""
+DB_NAME=""
 
 ```
 
@@ -98,8 +78,6 @@ You can trigger the ETL pipeline through Airflow. Make sure your Airflow instanc
 1. **Start Airflow** (in the terminal):
     
     ```bash
-    bash
-    Copiar código
     export AIRFLOW_HOME=$(pwd)/airflow
     AIRFLOW_VERSION=2.10.1
     PYTHON_VERSION="$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
@@ -114,5 +92,11 @@ Then enter the browser and paste the link:
 localhost:8080
 ```
 
-2. Access the Airflow dashboard by visiting `http://localhost:8080` in your browser.
-3. Trigger the ETL DAGs (`grammy.py`, `spotify.py`) from the Airflow UI.
+2. Access Airflow by visiting `http://localhost:8080` in your browser.
+3. Trigger the ETL DAGs from the Airflow UI.
+
+
+
+# Dashboard 
+
+![Dashboard](data-README.md/dashboard.png)
