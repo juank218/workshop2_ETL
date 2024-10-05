@@ -14,10 +14,10 @@ def combine_csv_files(**context):
         # Cargar los datos desde XCom
         ti = context["ti"]
         
-        json_data_db = json.loads(ti.xcom_pull(task_ids="transform_db_task"))
+        json_data_db = json.loads(ti.xcom_pull(task_ids="validate_grammy_data"))
         df_database = pd.json_normalize(data=json_data_db)
 
-        json_data_csv = json.loads(ti.xcom_pull(task_ids="transform_csv_task"))
+        json_data_csv = json.loads(ti.xcom_pull(task_ids="validate_spotify_csv"))
         df_csv = pd.json_normalize(data=json_data_csv)
         
         logging.info("CSV data loaded successfully.")
@@ -25,10 +25,6 @@ def combine_csv_files(**context):
         # Combinar los DataFrames
         combined_df = pd.merge(df_database, df_csv, left_on='nominee', right_on='track_name', how='inner')
         logging.info(f"DataFrames merged successfully. Final shape: {combined_df.shape}")
-
-        # Eliminar columnas innecesarias
-        combined_df.drop(columns=['artist_name', 'live_performance', 'signature_time'], inplace=True)
-        logging.info("Columns removed successfully.")
 
         # Verificar duplicados
         initial_duplicates = combined_df['track_id'].duplicated().sum()
@@ -50,7 +46,7 @@ def combine_csv_files(**context):
 def store_merged_data_to_db(**context):
     try:
         ti = context["ti"]
-        merged_data = ti.xcom_pull(task_ids='combine_csv')
+        merged_data = ti.xcom_pull(task_ids='merge_datasets')
         
         json_records = json.loads(merged_data)
         df_merged = pd.json_normalize(data=json_records)
@@ -84,7 +80,7 @@ def store_merged_data_to_db(**context):
 
 def authenticate_google_drive():
     gauth = GoogleAuth()
-    gauth.LoadClientConfigFile("./client_secrets.json")
+    gauth.LoadClientConfigFile("/home/juank/Escritorio/workshop2_ETL/client_secret.json")
     gauth.LocalWebserverAuth()
     return gauth
 
@@ -92,7 +88,7 @@ def authenticate_google_drive():
 def upload_to_google_drive(file_name='combined_data.csv', folder_id=None, **context):
     try:
         ti = context["ti"]
-        merged_data = ti.xcom_pull(task_ids='combine_csv')
+        merged_data = ti.xcom_pull(task_ids='merge_datasets')
         
         json_records = json.loads(merged_data)
         df = pd.json_normalize(data=json_records)

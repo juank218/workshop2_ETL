@@ -45,7 +45,7 @@ with DAG(
     )
     
     validate_spotify_task = PythonOperator(
-        task_id='validate_spotify_data',
+        task_id='validate_spotify_csv',
         python_callable=validate_spotify_data,
         provide_context=True,
     )
